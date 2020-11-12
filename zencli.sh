@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "This script allows you to use Zenmap's preconfigure profiles in the command line, in case that's more convinient for you.
+echo "This script allows you to use Zenmap's preconfigured profiles in the command line, in case that's more convinient for you.
 echo -n "Target: "
 read target
 select opt in "Intense scan" "Intense scan plus UDP" "Intense scan, all TCP ports" "Intense scan, no ping" "Ping scan" "Quick scan" "Quick scan plus" "Quick traceroute" "Regular scan" "Slow comprehensive scan" ; do
