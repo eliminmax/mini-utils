@@ -1,7 +1,6 @@
 #!/bin/bash
-echo "This script allows you to use Zenmap's preconfigured profiles in the command line, in case that's more convinient for you.
-echo -n "Target: "
-read target
+echo "This script allows you to use Zenmap's preconfigured profiles in the command line, in case that's more convinient for you."
+read -p "Target: " target
 select opt in "Intense scan" "Intense scan plus UDP" "Intense scan, all TCP ports" "Intense scan, no ping" "Ping scan" "Quick scan" "Quick scan plus" "Quick traceroute" "Regular scan" "Slow comprehensive scan" ; do
   case $opt in
     "Intense scan")
@@ -20,10 +19,10 @@ select opt in "Intense scan" "Intense scan plus UDP" "Intense scan, all TCP port
       nmap -sV -T4 -O -F --version-light $target ;;
     "Quick traceroute")
       nmap -sn --traceroute $target ;;
-    "Regular Scan")
+    "Regular scan")
       nmap $target ;;
     "Slow comprehensive scan")
-      nmap -sS -sU -T4 -A -v -PE -PP -PS80,443 -PA3389 -PU40125 -PY -g 53 --script "default or (discovery and safe)" $target ;;
+      nmap -sS -sU -T4 -A -v -PE -PP -PS80,443 -PA3389 -PU40125 -PY -g 53 --script default or discovery and safe $target ;;
     *) 
       echo "Invalid option $REPLY" ;;
   esac
