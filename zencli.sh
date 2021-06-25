@@ -14,6 +14,11 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+echo "zencli Copyright © 2021 Eli Array Minkoff."
+echo "This program comes with ABSOLUTELY NO WARRANTY; for details, see the LICENCE file."
+echo "This is free software, and you are welcome to redistribute it under certain conditions; for details, see the LICENCE file."
+
+
 echo "This script allows you to use Zenmap's preconfigured profiles in the command line, in case that's more convinient for you."
 read -p "Target: " target
 select opt in "Intense scan" "Intense scan plus UDP" "Intense scan, all TCP ports" "Intense scan, no ping" "Ping scan" "Quick scan" "Quick scan plus" "Quick traceroute" "Regular scan" "Slow comprehensive scan" ; do
