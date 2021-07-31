@@ -63,14 +63,14 @@ if __name__ == "__main__":
     while selection < 0:
         try:
             selection = int(input("Enter the number of your selection: "))
-        except Exception as e:
-            print("An error occured: ")
-            print(e)
             subprocess.run(['sudo','qemu-system-x86_64', '-m', str(GUEST_RAM),
                     '-enable-kvm', '-usb', '-device',
                     'usb-host,hostbus={},hostaddr={}'.format(
                         usb_devices[selection][0][0],
                         usb_devices[selection][0][1])])
+        except Exception as e:
+            print("An error occured: ")
+            print(e)
             c = ''
             while c not in 'yn':
                 c = input("Do you want to try again? (y/n): ").lower().strip()
