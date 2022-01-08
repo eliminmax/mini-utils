@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Copyright © 2021 Eli Array Minkoff
+Copyright © 2021, 2022 Eli Array Minkoff
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -16,21 +16,23 @@ Copyright © 2021 Eli Array Minkoff
 """
 import subprocess
 
+
 def print_copyright():
     print("usb_boot Copyright © 2021 Eli Array Minkoff.")
     print("This program comes with ABSOLUTELY NO WARRANTY; for details, see the LICENCE file.")
     print("This is free software, and you are welcome to redistribute it under certain conditions; for details, see the LICENCE file.")
     print("\n\n")
 
-GUEST_RAM=512
 
-# Run the lsusb OS-level command 
+GUEST_RAM = 512
+
+
 def lsusb():
     """Call the lsusb system command, and return its output as list of lines"""
     os_lsusb = subprocess.run(['lsusb'],
-                               capture_output=True,
-                               universal_newlines=True)
-    return os_lsusb.stdout.split('\n')[:-1] # skip blank line at the end
+                              capture_output=True,
+                              universal_newlines=True)
+    return os_lsusb.stdout.split('\n')[:-1]  # skip blank line at the end
 
 
 """
@@ -51,23 +53,23 @@ if __name__ == "__main__":
         address = line.split(':')[0]
         # split the string 'Bus 00X Device 00X' into its component parts
         address_components = address.split(' ')
-        bus=address_components[1]
-        dev=address_components[3]
+        bus = address_components[1]
+        dev = address_components[3]
         # each entry contains the bus/device pair and the original line
-        usb_devices.append([[bus,dev], line])
-    
+        usb_devices.append([[bus, dev], line])
+
     # print out the devices in a numbered list, and ask for selection
     for i in range(len(usb_devices)):
         print(f'{i} | {usb_devices[i][1]}')
-    selection=-1
+    selection = -1
     while selection < 0:
         try:
             selection = int(input("Enter the number of your selection: "))
-            subprocess.run(['sudo','qemu-system-x86_64', '-m', str(GUEST_RAM),
-                    '-enable-kvm', '-usb', '-device',
-                    'usb-host,hostbus={},hostaddr={}'.format(
-                        usb_devices[selection][0][0],
-                        usb_devices[selection][0][1])])
+            subprocess.run(['sudo', 'qemu-system-x86_64', '-m', str(GUEST_RAM),
+                            '-enable-kvm', '-usb', '-device',
+                            'usb-host,hostbus={},hostaddr={}'.format(
+                usb_devices[selection][0][0],
+                usb_devices[selection][0][1])])
         except Exception as e:
             print("An error occured: ")
             print(e)
