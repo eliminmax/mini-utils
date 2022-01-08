@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+Use QEMU to run a bootable USB thumb drive
 Copyright © 2021, 2022 Eli Array Minkoff
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,46 +18,42 @@ Copyright © 2021, 2022 Eli Array Minkoff
 import subprocess
 
 
-def print_copyright():
-    print("usb_boot Copyright © 2021 Eli Array Minkoff.")
-    print("This program comes with ABSOLUTELY NO WARRANTY; for details, see the LICENCE file.")
-    print("This is free software, and you are welcome to redistribute it under certain conditions; for details, see the LICENCE file.")
-    print("\n\n")
-
-
-GUEST_RAM = 512
+def __print_copyright():
+    """Print the GPL copyright statement."""
+    print("usb_boot Copyright (C) 2021, 2022 Eli Array Minkoff.")
+    print("This program comes with ABSOLUTELY NO WARRANTY;",
+          "for details, see the LICENCE file.")
+    print("This is free software,",
+          "and you are welcome to redistribute it under certain conditions;",
+          "for details, see the LICENCE file.\n\n")
 
 
 def lsusb():
-    """Call the lsusb system command, and return its output as list of lines"""
-    os_lsusb = subprocess.run(['lsusb'],
-                              capture_output=True,
-                              universal_newlines=True)
-    return os_lsusb.stdout.split('\n')[:-1]  # skip blank line at the end
+    """Call the lsusb system command, and return its output as list of lines
+    """
+    return subprocess.check_output(['lsusb']).decode().splitlines()
 
 
 """
 lsusb outputs a list of USB devices with the following format:
 Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 001 Device 002: ID 0810:e601 Personal Communication Systems, Inc. SNES Gamepad
+Bus 001 Device 002: ID 239a:801e Adafruit Trinket M0
 Bus 001 Device 005: ID 057e:200e Nintendo Co., Ltd Joy-Con Charging Grip
 Bus 001 Device 006: ID 05ac:0202 Apple, Inc. Keyboard [ALPS]
+
+A list of device ids can be found at http://www.linux-usb.org/usb.ids
 """
 
 if __name__ == "__main__":
-    # Print copyright notice
-    print_copyright()
-    # parse out the output of the lsusb command
+    __print_copyright()
+
     usb_devices = []
     for line in lsusb():
         # here, we only need the bus and device ids
-        address = line.split(':')[0]
-        # split the string 'Bus 00X Device 00X' into its component parts
-        address_components = address.split(' ')
-        bus = address_components[1]
-        dev = address_components[3]
-        # each entry contains the bus/device pair and the original line
-        usb_devices.append([[bus, dev], line])
+        address_components = line.split(':')[0].split(' ')
+        bus_id = address_components[1]
+        device_id = address_components[3]
+        usb_devices.append([[bus_id, device_id], line])
 
     # print out the devices in a numbered list, and ask for selection
     for i in range(len(usb_devices)):
@@ -65,7 +62,7 @@ if __name__ == "__main__":
     while selection < 0:
         try:
             selection = int(input("Enter the number of your selection: "))
-            subprocess.run(['sudo', 'qemu-system-x86_64', '-m', str(GUEST_RAM),
+            subprocess.run(['sudo', 'qemu-system-x86_64', '-m', '512',
                             '-enable-kvm', '-usb', '-device',
                             'usb-host,hostbus={},hostaddr={}'.format(
                 usb_devices[selection][0][0],
