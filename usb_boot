@@ -15,58 +15,102 @@ Copyright © 2021, 2022 Eli Array Minkoff
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+import argparse
+import os
 import subprocess
+import sys
 
 
-def __print_copyright():
-    """Print the GPL copyright statement."""
+def lsusb():
+    """Call the lsusb system command, and return its output as list of strings
+    lsusb outputs a list of USB devices with the following format:
+        Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+        Bus 001 Device 002: ID 239a:801e Adafruit Trinket M0
+        Bus 001 Device 005: ID 057e:2006 Nintendo Co., Ltd Joy-Con L
+        Bus 001 Device 006: ID 057e:2007 Nintendo Co., Ltd Joy-Con R
+        Bus 001 Device 007: ID 05ac:0202 Apple, Inc. Keyboard [ALPS]
+    A list of device ids can be found at http://www.linux-usb.org/usb.ids
+    """
+    return subprocess.check_output(['lsusb']).decode().splitlines()
+
+
+def parse_lsusb_entry(lsusb_entry):
+    """ Parse a line outputed by lsusb, and return a dict with its attributes
+
+    Return
+    (dict) {
+        'bus': (int) the numeric id of the bus the device is connected to
+        'addr': (int) the numeric id of the device's address on the bus
+        'id': (str) the identifier, manufacturer, and description of the device
+    }
+    """
+    lsusb_entry = lsusb_entry
+    bus_dev_str, id = [i.strip() for i in lsusb_entry.split(':', 1)]
+    # bus_dev_str should look something like 'Bus MMM Device NNN'.
+    bus, addr = [int(i) for i in bus_dev_str.split(' ')[1::2]]
+    return {'bus': bus, 'addr': addr, 'id': id}
+
+
+def get_args():
+    """Parse the command-line flags, return a Namespace object.
+    """
+    parser = argparse.ArgumentParser(
+        prog="usb_boot",
+        description="Test bootable USB using QEMU",
+        epilog=(
+            "Defaults are loaded dynamically from environment variables "
+            "USB_BOOT_QEMU_CMD, USB_BOOT_MEMORY, and USB_BOOT_KVM if "
+            "possible, otherwise they are hard-coded to --qemucmd="
+            "qemu-system-x86_64, --memory=512, and --kvm.\n\n"
+            "If USB_BOOT_KVM is set to a value of 'FALSE', KVM will not be"
+            "used by default, otherwise, it will be."
+        ),
+        allow_abbrev=False
+    )
+    parser.add_argument('--qemucmd', '-qemucmd',
+                        help="The QEMU binary to use",
+                        default=os.getenv("USB_BOOT_QEMU_CMD",
+                                          default="qemu-system-x86_64")
+                        )
+    parser.add_argument('--memory', '-memory',
+                        help="The amount of memory to allocate",
+                        default=os.getenv("USB_BOOT_MEMORY",
+                                          default='512'))
+    kvm_status = parser.add_mutually_exclusive_group()
+    kvm_status.add_argument("--kvm", "-kvm", '-k',
+                            action='store_true', dest="kvm")
+    kvm_status.add_argument("--nokvm", "-nokvm", '-K',
+                            action='store_false', dest="kvm")
+    env_kvm_setting = (os.getenv("USB_BOOT_KVM", default="") != "FALSE")
+    parser.set_defaults(use_kvm=env_kvm_setting)
+    return parser.parse_args(sys.argv[1:])
+
+
+def main():
     print("usb_boot Copyright (C) 2021, 2022 Eli Array Minkoff.")
     print("This program comes with ABSOLUTELY NO WARRANTY;",
           "for details, see the LICENCE file.")
     print("This is free software,",
           "and you are welcome to redistribute it under certain conditions;",
           "for details, see the LICENCE file.\n\n")
-
-
-def lsusb():
-    """Call the lsusb system command, and return its output as list of lines
-    """
-    return subprocess.check_output(['lsusb']).decode().splitlines()
-
-
-"""
-lsusb outputs a list of USB devices with the following format:
-Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 001 Device 002: ID 239a:801e Adafruit Trinket M0
-Bus 001 Device 005: ID 057e:200e Nintendo Co., Ltd Joy-Con Charging Grip
-Bus 001 Device 006: ID 05ac:0202 Apple, Inc. Keyboard [ALPS]
-
-A list of device ids can be found at http://www.linux-usb.org/usb.ids
-"""
-
-if __name__ == "__main__":
-    __print_copyright()
-
-    usb_devices = []
-    for line in lsusb():
-        # here, we only need the bus and device ids
-        address_components = line.split(':')[0].split(' ')
-        bus_id = address_components[1]
-        device_id = address_components[3]
-        usb_devices.append([[bus_id, device_id], line])
-
+    args = get_args()
+    usb_devices = list(map(parse_lsusb_entry, lsusb()))
     # print out the devices in a numbered list, and ask for selection
     for i in range(len(usb_devices)):
-        print(f'{i} | {usb_devices[i][1]}')
+        print(f'{i} | {usb_devices[i]["id"]}')
     selection = -1
     while selection < 0:
         try:
             selection = int(input("Enter the number of your selection: "))
-            subprocess.run(['sudo', 'qemu-system-x86_64', '-m', '512',
-                            '-enable-kvm', '-usb', '-device',
-                            'usb-host,hostbus={},hostaddr={}'.format(
-                usb_devices[selection][0][0],
-                usb_devices[selection][0][1])])
+            cmd = ['sudo', args.qemucmd, '-m', args.memory, '-usb', '-device',
+                   'usb-host,hostbus={},hostaddr={}'.format(
+                       usb_devices[selection]['bus'],
+                       usb_devices[selection]['addr']
+                   )
+                   ]
+            if args.use_kvm:
+                cmd.append('-enable-kvm')
+            subprocess.run(cmd)
         except Exception as e:
             print("An error occured: ")
             print(e)
@@ -76,4 +120,8 @@ if __name__ == "__main__":
             if c == 'y':
                 selection = -1
             else:
-                exit()
+                sys.exit()
+
+
+if __name__ == "__main__":
+    main()
