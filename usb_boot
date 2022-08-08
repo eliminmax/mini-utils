@@ -78,9 +78,9 @@ def get_args():
                                           default='512'))
     kvm_status = parser.add_mutually_exclusive_group()
     kvm_status.add_argument("--kvm", "-kvm", '-k',
-                            action='store_true', dest="kvm")
+                            action='store_true', dest="use_kvm")
     kvm_status.add_argument("--nokvm", "-nokvm", '-K',
-                            action='store_false', dest="kvm")
+                            action='store_false', dest="use_kvm")
     env_kvm_setting = (os.getenv("USB_BOOT_KVM", default="") != "FALSE")
     parser.set_defaults(use_kvm=env_kvm_setting)
     return parser.parse_args(sys.argv[1:])
