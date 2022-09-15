@@ -74,6 +74,13 @@ def get_args():
         default=os.getenv("USB_BOOT_QEMU_CMD", default="qemu-system-x86_64"),
     )
     parser.add_argument(
+        "--bios",
+        "-bios",
+        "-b",
+        help="Alternate BIOS to use (e.g. for EFI)",
+        default="",
+    )
+    parser.add_argument(
         "--memory",
         "-memory",
         "-m",
@@ -126,6 +133,8 @@ def main():
             ]
             if args.use_kvm:
                 cmd.append("-enable-kvm")
+            if args.bios:
+                cmd += ["-bios", args.bios]
             subprocess.run(cmd)
         except Exception as e:
             print("An error occured: ")
