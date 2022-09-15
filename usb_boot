@@ -69,12 +69,14 @@ def get_args():
     parser.add_argument(
         "--qemucmd",
         "-qemucmd",
+        "-q",
         help="The QEMU binary to use",
         default=os.getenv("USB_BOOT_QEMU_CMD", default="qemu-system-x86_64"),
     )
     parser.add_argument(
         "--memory",
         "-memory",
+        "-m",
         help="The amount of memory to allocate",
         default=os.getenv("USB_BOOT_MEMORY", default="512"),
     )
