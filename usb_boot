@@ -31,11 +31,11 @@ def lsusb():
         Bus 001 Device 007: ID 05ac:0202 Apple, Inc. Keyboard [ALPS]
     A list of device ids can be found at http://www.linux-usb.org/usb.ids
     """
-    return subprocess.check_output(['lsusb']).decode().splitlines()
+    return subprocess.check_output(["lsusb"]).decode().splitlines()
 
 
 def parse_lsusb_entry(lsusb_entry):
-    """ Parse a line outputed by lsusb, and return a dict with its attributes
+    """Parse a line outputed by lsusb, and return a dict with its attributes
 
     Return
     (dict) {
@@ -45,15 +45,14 @@ def parse_lsusb_entry(lsusb_entry):
     }
     """
     lsusb_entry = lsusb_entry
-    bus_dev_str, id = [i.strip() for i in lsusb_entry.split(':', 1)]
+    bus_dev_str, id = [i.strip() for i in lsusb_entry.split(":", 1)]
     # bus_dev_str should look something like 'Bus MMM Device NNN'.
-    bus, addr = [int(i) for i in bus_dev_str.split(' ')[1::2]]
-    return {'bus': bus, 'addr': addr, 'id': id}
+    bus, addr = [int(i) for i in bus_dev_str.split(" ")[1::2]]
+    return {"bus": bus, "addr": addr, "id": id}
 
 
 def get_args():
-    """Parse the command-line flags, return a Namespace object.
-    """
+    """Parse the command-line flags, return a Namespace object."""
     parser = argparse.ArgumentParser(
         prog="usb_boot",
         description="Test bootable USB using QEMU",
@@ -65,34 +64,43 @@ def get_args():
             "If USB_BOOT_KVM is set to a value of 'FALSE', KVM will not be "
             "used by default, otherwise, it will be."
         ),
-        allow_abbrev=False
+        allow_abbrev=False,
     )
-    parser.add_argument('--qemucmd', '-qemucmd',
-                        help="The QEMU binary to use",
-                        default=os.getenv("USB_BOOT_QEMU_CMD",
-                                          default="qemu-system-x86_64")
-                        )
-    parser.add_argument('--memory', '-memory',
-                        help="The amount of memory to allocate",
-                        default=os.getenv("USB_BOOT_MEMORY",
-                                          default='512'))
+    parser.add_argument(
+        "--qemucmd",
+        "-qemucmd",
+        help="The QEMU binary to use",
+        default=os.getenv("USB_BOOT_QEMU_CMD", default="qemu-system-x86_64"),
+    )
+    parser.add_argument(
+        "--memory",
+        "-memory",
+        help="The amount of memory to allocate",
+        default=os.getenv("USB_BOOT_MEMORY", default="512"),
+    )
     kvm_status = parser.add_mutually_exclusive_group()
-    kvm_status.add_argument("--kvm", "-kvm", '-k',
-                            action='store_true', dest="use_kvm")
-    kvm_status.add_argument("--nokvm", "-nokvm", '-K',
-                            action='store_false', dest="use_kvm")
-    env_kvm_setting = (os.getenv("USB_BOOT_KVM", default="") != "FALSE")
+    kvm_status.add_argument(
+        "--kvm", "-kvm", "-k", action="store_true", dest="use_kvm"
+    )
+    kvm_status.add_argument(
+        "--nokvm", "-nokvm", "-K", action="store_false", dest="use_kvm"
+    )
+    env_kvm_setting = os.getenv("USB_BOOT_KVM", default="") != "FALSE"
     parser.set_defaults(use_kvm=env_kvm_setting)
     return parser.parse_args(sys.argv[1:])
 
 
 def main():
     print("usb_boot Copyright (C) 2021, 2022 Eli Array Minkoff.")
-    print("This program comes with ABSOLUTELY NO WARRANTY;",
-          "for details, see the LICENCE file.")
-    print("This is free software,",
-          "and you are welcome to redistribute it under certain conditions;",
-          "for details, see the LICENCE file.\n\n")
+    print(
+        "This program comes with ABSOLUTELY NO WARRANTY;",
+        "for details, see the LICENCE file.",
+    )
+    print(
+        "This is free software,",
+        "and you are welcome to redistribute it under certain conditions;",
+        "for details, see the LICENCE file.\n\n",
+    )
     args = get_args()
     usb_devices = list(map(parse_lsusb_entry, lsusb()))
     # print out the devices in a numbered list, and ask for selection
@@ -102,22 +110,28 @@ def main():
     while selection < 0:
         try:
             selection = int(input("Enter the number of your selection: "))
-            cmd = ['sudo', args.qemucmd, '-m', args.memory, '-usb', '-device',
-                   'usb-host,hostbus={},hostaddr={}'.format(
-                       usb_devices[selection]['bus'],
-                       usb_devices[selection]['addr']
-                   )
-                   ]
+            cmd = [
+                "sudo",
+                args.qemucmd,
+                "-m",
+                args.memory,
+                "-usb",
+                "-device",
+                "usb-host,hostbus={},hostaddr={}".format(
+                    usb_devices[selection]["bus"],
+                    usb_devices[selection]["addr"],
+                ),
+            ]
             if args.use_kvm:
-                cmd.append('-enable-kvm')
+                cmd.append("-enable-kvm")
             subprocess.run(cmd)
         except Exception as e:
             print("An error occured: ")
             print(e)
-            c = ''
-            while c not in 'yn':
+            c = ""
+            while c not in "yn":
                 c = input("Do you want to try again? (y/n): ").lower().strip()
-            if c == 'y':
+            if c == "y":
                 selection = -1
             else:
                 sys.exit()
