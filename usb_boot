@@ -55,14 +55,6 @@ def get_args():
     """Parse the command-line flags, return a Namespace object."""
     parser = argparse.ArgumentParser(
         description="Test bootable USB using QEMU",
-        epilog=(
-            "Defaults are loaded dynamically from environment variables "
-            "USB_BOOT_QEMU_CMD, USB_BOOT_MEMORY, and USB_BOOT_KVM if "
-            "possible, otherwise they are hard-coded to --qemucmd="
-            "qemu-system-x86_64, --memory=512, and --kvm.\n\n"
-            "If USB_BOOT_KVM is set to a value of 'FALSE', KVM will not be "
-            "used by default, otherwise, it will be."
-        ),
         allow_abbrev=False,
     )
     # add basic arguments
@@ -71,7 +63,6 @@ def get_args():
         "-qemucmd",
         "-q",
         help="The QEMU binary to use",
-        default=os.getenv("USB_BOOT_QEMU_CMD", default="qemu-system-x86_64"),
     )
     parser.add_argument(
         "--bios",
@@ -85,7 +76,6 @@ def get_args():
         "-memory",
         "-m",
         help="The amount of memory to allocate",
-        default=os.getenv("USB_BOOT_MEMORY", default="512"),
     )
     # add mutually exclusive --kvm and --nokvm flags
     kvm_status = parser.add_mutually_exclusive_group()
@@ -96,8 +86,7 @@ def get_args():
         "--nokvm", "-nokvm", "-K", action="store_false", dest="use_kvm"
     )
     # load default from environment variable
-    env_kvm_setting = os.getenv("USB_BOOT_KVM", default="") != "FALSE"
-    parser.set_defaults(use_kvm=env_kvm_setting)
+    parser.set_defaults(use_kvm=True)
     # parse the arguments using the parser object created
     return parser.parse_args(sys.argv[1:])
 
