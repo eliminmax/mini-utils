@@ -44,7 +44,7 @@ def parse_lsusb_entry(lsusb_entry):
         'id': (str) the identifier, manufacturer, and description of the device
     }
     """
-    # 
+    #
     bus_dev_str, id = [i.strip() for i in lsusb_entry.split(":", 1)]
     # bus_dev_str should look something like 'Bus MMM Device NNN'.
     bus, addr = [int(i) for i in bus_dev_str.split(" ")[1::2]]
