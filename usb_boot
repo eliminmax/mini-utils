@@ -44,7 +44,7 @@ def parse_lsusb_entry(lsusb_entry):
         'id': (str) the identifier, manufacturer, and description of the device
     }
     """
-    lsusb_entry = lsusb_entry
+    # 
     bus_dev_str, id = [i.strip() for i in lsusb_entry.split(":", 1)]
     # bus_dev_str should look something like 'Bus MMM Device NNN'.
     bus, addr = [int(i) for i in bus_dev_str.split(" ")[1::2]]
@@ -54,7 +54,6 @@ def parse_lsusb_entry(lsusb_entry):
 def get_args():
     """Parse the command-line flags, return a Namespace object."""
     parser = argparse.ArgumentParser(
-        prog="usb_boot",
         description="Test bootable USB using QEMU",
         epilog=(
             "Defaults are loaded dynamically from environment variables "
@@ -66,6 +65,7 @@ def get_args():
         ),
         allow_abbrev=False,
     )
+    # add basic arguments
     parser.add_argument(
         "--qemucmd",
         "-qemucmd",
@@ -87,6 +87,7 @@ def get_args():
         help="The amount of memory to allocate",
         default=os.getenv("USB_BOOT_MEMORY", default="512"),
     )
+    # add mutually exclusive --kvm and --nokvm flags
     kvm_status = parser.add_mutually_exclusive_group()
     kvm_status.add_argument(
         "--kvm", "-kvm", "-k", action="store_true", dest="use_kvm"
@@ -94,8 +95,10 @@ def get_args():
     kvm_status.add_argument(
         "--nokvm", "-nokvm", "-K", action="store_false", dest="use_kvm"
     )
+    # load default from environment variable
     env_kvm_setting = os.getenv("USB_BOOT_KVM", default="") != "FALSE"
     parser.set_defaults(use_kvm=env_kvm_setting)
+    # parse the arguments using the parser object created
     return parser.parse_args(sys.argv[1:])
 
 
