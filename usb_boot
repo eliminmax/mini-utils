@@ -119,35 +119,24 @@ def main():
         print(f'{i} | {usb_devices[i]["id"]}')
     selection = -1
     while selection < 0:
-        try:
-            selection = int(input("Enter the number of your selection: "))
-            cmd = [
-                "sudo",
-                args.qemucmd,
-                "-m",
-                args.memory,
-                "-usb",
-                "-device",
-                "usb-host,hostbus={},hostaddr={}".format(
-                    usb_devices[selection]["bus"],
-                    usb_devices[selection]["addr"],
-                ),
-            ]
-            if args.use_kvm:
-                cmd.append("-enable-kvm")
-            if args.use_efi:
-                cmd += ['-smbios', 'type=0,uefi=on', '-bios', args.efi_path]
-            subprocess.run(cmd)
-        except Exception as e:
-            print("An error occured: ")
-            print(e)
-            c = ""
-            while c not in "yn":
-                c = input("Do you want to try again? (y/n): ").lower().strip()
-            if c == "y":
-                selection = -1
-            else:
-                sys.exit()
+        selection = int(input("Enter the number of your selection: "))
+        cmd = [
+            "sudo",
+            args.qemucmd,
+            "-m",
+            args.memory,
+            "-usb",
+            "-device",
+            "usb-host,hostbus={},hostaddr={}".format(
+                usb_devices[selection]["bus"],
+                usb_devices[selection]["addr"],
+            ),
+        ]
+        if args.use_kvm:
+            cmd.append("-enable-kvm")
+        if args.use_efi:
+            cmd += ['-smbios', 'type=0,uefi=on', '-bios', args.efi_path]
+        subprocess.run(cmd)
 
 
 if __name__ == "__main__":
