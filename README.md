@@ -14,3 +14,5 @@ This is what each utility in the repository does:
 * `setup-sandbox.sh`: creates a simple sandboxed X11 environment to run a command in.
   * usage: `setup-sandbox.sh /path/to/sandbox/homedir command-to-run command-args*`
   * depends: **Xephyr** *(an optional part of Xorg)*, **Bubblewrap** *(a sandboxing tool)*, and **awesome** *(a lightweight window manager)*
+* `spipx` is a wrapper around the `pipx` utility that, when run as root, creates the venvs and other such data in /opt/pipx, and installs the binaries to /opt/pipx/bin
+  * depends: **pipx**

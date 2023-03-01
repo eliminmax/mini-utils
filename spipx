@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ "$(id -u)" -ne 0 ]; then
+    printf 'Error: spipx must be run as root!\n'
+fi
+
+PIPX_HOME=/opt/pipx PIPX_BIN=/opt/pipx/bin pipx "$@"
