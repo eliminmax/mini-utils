@@ -84,7 +84,7 @@ def get_args():
         "--nokvm", "-nokvm", "-K", action="store_false", dest="use_kvm"
     )
     parser.set_defaults(use_kvm=True)
-    
+
     # add mutually exclusive --efi and --noefi flags and their variants
     use_efi = parser.add_mutually_exclusive_group()
     use_efi.add_argument(
@@ -133,7 +133,7 @@ def main():
         if args.use_kvm:
             cmd.append("-enable-kvm")
         if args.use_efi:
-            cmd += ['-smbios', 'type=0,uefi=on', '-bios', args.efi_path]
+            cmd += ["-smbios", "type=0,uefi=on", "-bios", args.efi_path]
         subprocess.run(cmd)
 
 
