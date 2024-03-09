@@ -2,15 +2,15 @@
 import sys
 import re
 
-esc_extract_regex = re.compile('\x1b\\[[0-9;]*m')
+esc_extract_regex = re.compile("\x1b\\[[0-9;]*m")
 
 
 if sys.argv[1:]:
     for fname in sys.argv[1:]:
         with open(fname) as f:
-            print(esc_extract_regex.sub('', f.read()), end='')
+            print(esc_extract_regex.sub("", f.read()), end="")
 
 
 else:
     for line_text in sys.stdin.readlines():
-        print(esc_extract_regex.sub('', line_text), end='')
+        print(esc_extract_regex.sub("", line_text), end="")

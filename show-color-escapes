@@ -2,16 +2,16 @@
 import sys
 import re
 
-esc_extract_str = '\x1b(\\[[0-9;]*m)'
-esc_styling_str = '\x1b[1;93m^[\x1b[0;91m\\1\x1b[0m'
+esc_extract_str = "\x1b(\\[[0-9;]*m)"
+esc_styling_str = "\x1b[1;93m^[\x1b[0;91m\\1\x1b[0m"
 
 
 if sys.argv[1:]:
     for fname in sys.argv[1:]:
         with open(fname) as f:
-            print(re.sub(esc_extract_str, esc_styling_str, f.read()), end='')
+            print(re.sub(esc_extract_str, esc_styling_str, f.read()), end="")
 
 
 else:
     for line_text in sys.stdin.readlines():
-        print(re.sub(esc_extract_str, esc_styling_str, line_text), end='')
+        print(re.sub(esc_extract_str, esc_styling_str, line_text), end="")
