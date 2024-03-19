@@ -1,0 +1,63 @@
+#!/usr/bin/env -S gawk -f
+# Copyright © 2024 Eli Array Minkoff
+# Permission to use, copy, modify, and/or distribute this software for
+# any purpose with or without fee is hereby granted.
+# 
+# THE SOFTWARE IS PROVIDED “AS IS” AND THE AUTHOR DISCLAIMS ALL
+# WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE
+# FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY
+# DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+# AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+# OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+# Intended to process output of cmark-gfm, and add anchor ids to their headings
+# Tested on https://gist.github.com/eliminmax/01367a6a5e6ca01dc46c6dc012c3f4d0
+
+/^<h[1-6]>/{
+    heading_id = tolower($0)
+    # remove HTML escaped elements like '&amp;' - cmark-gfm normalizes them,
+    # so no need to worry about whether, for instance,
+    # '&48;' is a character to keep - it's '0', by the way, so it is.
+    gsub(/&[a-z]*;/, "", heading_id)
+    # remove HTML tags
+    gsub(/<[^>]*>/, "", heading_id)
+    # remove leading and trailing spaces
+    gsub(/^ */, "", heading_id)
+    gsub(/ *$/, "", heading_id)
+    # replace spaces with dashes
+    gsub(/ /, "-", heading_id)
+    # remove non-alphanumeric characters other than space, underscore, and dash
+    gsub(/[^[:alnum:]_\- ]/, "", heading_id)
+    # check for previous headings that would have a name collision
+    if (heading_ids[heading_id] > 0) {
+        # generate the new id by appending "-N", where N is the number of
+        # previous headings with the same name - except in some weird edge
+        # cases that tried to account for.
+        new_id = sprintf("%s-%d", heading_id, heading_ids[heading_id])
+        # check for a bizarre edge case where a previous heading ending in
+        # a number would have a name collision with this one
+        # like a heading called 'foo 1' followed by 2 headings called 'foo'
+        # handle it in a way compatible with what GitHub does
+        # keep incrementing heading_ids[heading_id] until there's no collision
+        while (heading_ids[new_id] > 0) {
+            new_id = sprintf("%s-%d", heading_id, ++heading_ids[heading_id])
+        }
+        # we have our new id
+        heading_id = new_id
+        # handling another edge case that's kind of the reverse of the last one
+        # for example, if there are 2 headings called 'foo' followed by one
+        # called 'foo 1', then one more 'foo', GitHub's ids for them are 'foo',
+        # 'foo-1', 'foo-1-1', and 'foo-2' respectively.
+        # dealing with that is as simple as adding the new id to the known ids
+        heading_ids[new_id]++
+    } else {
+        # if there is no collision with a previous id, simply increment it
+        heading_ids[heading_id]++
+    }
+    # insert the new id into the header tag
+    sub(/>/, " id=\""heading_id"\">")
+}
+
+# print all lines
+{print}

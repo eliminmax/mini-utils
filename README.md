@@ -20,3 +20,7 @@ This is what each utility in the repository does:
 
 * `spipx` is a wrapper around the `pipx` utility that, when run as root, creates the venvs and other such data in /opt/pipx, and installs the binaries to /opt/pipx/bin
   * depends: **pipx**
+
+* `cmark-gfm-heading-generator` is a GNU AWK script that adds headings to the output of [cmark-gfm](https://github.com/github/cmark-gfm). It specifically relies on the way GNU AWK handles non-Latin characters, and it breaks if `LC_ALL` is set to certain values. On my system, with the `C`, `C.utf8`, `en_US.utf8`, and `POSIX` locales, it only worked if the `LC_ALL` environment varialbe was unset or set to `C.utf8` or `en_US.utf8`. The shebang depends on specific GNU `env` functionality too, but you can invoke it directly or edit the shebang to get around that.
+  * usage: `cmark-gfm some-markdown-file.md | cmark-gfm-heading-generator > index.html`
+  * depends: **gawk**, *utf8 locale*, **GNU coreutils env** (workaround available)
