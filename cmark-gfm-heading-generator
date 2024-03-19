@@ -28,8 +28,8 @@
     gsub(/ *$/, "", heading_id)
     # replace spaces with dashes
     gsub(/ /, "-", heading_id)
-    # remove non-alphanumeric characters other than space, underscore, and dash
-    gsub(/[^[:alnum:]_\- ]/, "", heading_id)
+    # remove non-alphanumeric characters other than underscore and dash
+    gsub(/[^[:alnum:]_\-]/, "", heading_id)
     # check for previous headings that would have a name collision
     if (heading_ids[heading_id] > 0) {
         # generate the new id by appending "-N", where N is the number of
