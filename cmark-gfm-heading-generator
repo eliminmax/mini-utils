@@ -33,7 +33,7 @@
     if (heading_ids[heading_id] > 0) {
         # generate the new id by appending "-N", where N is the number of
         # previous headings with the same name - except in some weird edge
-        # cases that tried to account for.
+        # cases that I tried to account for.
         new_id = sprintf("%s-%d", heading_id, heading_ids[heading_id])
         # check for a bizarre edge case where a previous heading ending in
         # a number would have a name collision with this one
