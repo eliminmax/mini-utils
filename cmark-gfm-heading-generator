@@ -11,7 +11,8 @@
 # AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-# Intended to process output of cmark-gfm, and add anchor ids to their headings
+# Intended to process output of cmark-gfm, and add anchor ids to headings
+# to enable linking to them with the same "id" values GitHub itself uses.
 # Tested on https://gist.github.com/eliminmax/01367a6a5e6ca01dc46c6dc012c3f4d0
 
 /^<h[1-6]>/{
