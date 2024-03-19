@@ -15,7 +15,9 @@
 # to enable linking to them with the same "id" values GitHub itself uses.
 # Tested on https://gist.github.com/eliminmax/01367a6a5e6ca01dc46c6dc012c3f4d0
 
+# run this block on all lines starting with a header tag.
 /^<h[1-6]>/{
+    # GitHub header ids are all lowercase.
     heading_id = tolower($0)
     # remove HTML escaped elements like '&amp;' - cmark-gfm normalizes them,
     # so no need to worry about whether, for instance,
@@ -47,7 +49,7 @@
         # we have our new id
         heading_id = new_id
         # handling another edge case that's kind of the reverse of the last one
-        # for example, if there are 2 headings called 'foo' followed by one
+        # as an example, if there are 2 headings called 'foo' followed by one
         # called 'foo 1', then one more 'foo', GitHub's ids for them are 'foo',
         # 'foo-1', 'foo-1-1', and 'foo-2' respectively.
         # dealing with that is as simple as adding the new id to the known ids
