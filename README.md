@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2020-2024 Eli Array Minkoff
+
+SPDX-License-Identifier: 0BSD
+-->
+
 # mini-utils
 A repository for simple command-line utilites that I've made for myself, but am happy to share with the world.
 
