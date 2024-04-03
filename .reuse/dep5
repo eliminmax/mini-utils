@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Eli Array Minkoff's mini-utils
+Upstream-Contact: Eli Array Minkoff <eli@planetminkoff.com>
+Source: https://github.com/eliminmax/mini-utils
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...
