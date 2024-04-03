@@ -5,7 +5,8 @@
 #
 # SPDX-License-Identifier: 0BSD
 
-PS4='[38;5;195msetup-sandbox.sh »[m'
+# generate PS4 with printf to avoid having embedded escape sequences
+PS4="$(printf '\033[38;5;195msetup-sandbox.sh »\033[m')"
 set -x
 
 # Usage: setup-sandbox.sh SANDBOX_DIR EXEC_NAME ARGS
