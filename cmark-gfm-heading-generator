@@ -1,6 +1,5 @@
 #!/usr/bin/env -S gawk -f
 
-# Copyright © 2024 Eli Array Minkoff
 # SPDX-FileCopyrightText: 2024 Eli Array Minkoff
 #
 # SPDX-License-Identifier: 0BSD

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Copyright © 2021 Eli Array Minkoff
 # SPDX-FileCopyrightText: 2021-2022 Eli Array Minkoff
 #
 # SPDX-License-Identifier: 0BSD
