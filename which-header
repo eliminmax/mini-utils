@@ -60,6 +60,13 @@ def _get_args() -> argparse.Namespace:
         type=Path,
         help="extra directory for search path",
     )
+    parser.add_argument(
+        "-a",
+        "--all-matches",
+        action="store_true",
+        dest="all_matches",
+        help="Print all matched headers, rather than the 1st",
+    )
 
     parser.add_argument("headers", nargs="*", help="headers to look up")
     return parser.parse_args()
@@ -68,7 +75,8 @@ def _get_args() -> argparse.Namespace:
 def find_header(
     header: str | os.PathLike,
     search_dirs: list[Path],
-):
+    return_all: bool = False,
+) -> Path | list[Path]:
     """Return a pathlib.Path to the header
     parameters:
         header: the header to search for
@@ -76,10 +84,15 @@ def find_header(
 
     if header can't be found, raises a FileNotFoundError.
     """
+    ret = []
     for search_dir in search_dirs:
         if (joined := search_dir.joinpath(header)).exists():
-            return joined
-    raise FileNotFoundError(f"{header} not found in search path")
+            if not return_all:
+                return joined
+            ret.append(joined)
+    if not ret:
+        raise FileNotFoundError(f"{header} not found in search path")
+    return ret
 
 
 def main():
@@ -95,7 +108,11 @@ def main():
     search_path += default_search_dirs
     # add extra search directories
     for header in args.headers:
-        print(find_header(header, search_path))
+        if args.all_matches:
+            for location in find_header(header, search_path, True):
+                print(location)
+        else:
+            print(find_header(header, search_path, False))
 
 
 if __name__ == "__main__":
