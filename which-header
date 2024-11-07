@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""locate headers #included by the GCC C Preprocessor
+SPDX-FileCopyrightText: 2024 Eli Array Minkoff
+
+SPDX-License-Identifier: 0BSD
+"""
+
+import argparse
+import subprocess
+from pathlib import Path
+import os
+
+_CPP_INFO = subprocess.check_output(
+    # https://gcc.gnu.org/onlinedocs/cpp/Search-Path.html
+    ["cpp", "-v", "/dev/null", "-o", "/dev/null"],
+    stderr=subprocess.STDOUT,
+).decode()
+
+# cut off information after search list
+_CPP_INFO = _CPP_INFO.split("End of search list.\n", 1)[0]
+
+# cut off information before search list
+_CPP_INFO = _CPP_INFO.split('#include "..." search starts here:\n', 1)[1]
+
+_quoted, _default = _CPP_INFO.split("#include <...> search starts here:\n", 1)
+# path names listed are indented with single spaces.
+quoted_search_dirs = [Path.cwd()] + [Path(p[1:]) for p in _quoted.splitlines()]
+
+default_search_dirs = [Path(p[1:]) for p in _default.splitlines()]
+
+
+def _get_args() -> argparse.Namespace:
+    """Parse the command-line flags, return a Namespace object"""
+    parser = argparse.ArgumentParser(
+        description="Locate header included by gcc's cpp",
+        allow_abbrev=False,
+    )
+    # add basic arguments
+    parser.add_argument(
+        "--quoted",
+        "-Q",
+        action="store_true",
+        dest="quoted",
+        help="treat files as though they're included with quotes",
+    )
+    parser.add_argument(
+        "-iquoted",
+        action="append",
+        dest="quoted_includes",
+        type=Path,
+        help="Extra directory for search path for quoted includes only",
+    )
+    parser.add_argument(
+        "-I",
+        "-include",
+        "-isystem",
+        "--include",
+        action="append",
+        dest="includes",
+        type=Path,
+        help="extra directory for search path",
+    )
+
+    parser.add_argument("headers", nargs="*", help="headers to look up")
+    return parser.parse_args()
+
+
+def find_header(
+    header: str | os.PathLike,
+    search_dirs: list[Path],
+):
+    """Return a pathlib.Path to the header
+    parameters:
+        header: the header to search for
+        search_dirs: the directories in the search path
+
+    if header can't be found, raises a FileNotFoundError.
+    """
+    for search_dir in search_dirs:
+        if (joined := search_dir.joinpath(header)).exists():
+            return joined
+    raise FileNotFoundError(f"{header} not found in search path")
+
+
+def main():
+    """The main function"""
+    args = _get_args()
+    search_path = []
+    if args.quoted:
+        if args.quoted_includes is not None:
+            search_path += args.quoted_includes
+        search_path += quoted_search_dirs
+    if args.includes is not None:
+        search_path += args.includes
+    search_path += default_search_dirs
+    # add extra search directories
+    for header in args.headers:
+        print(find_header(header, search_path))
+
+
+if __name__ == "__main__":
+    main()
