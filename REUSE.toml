@@ -1,9 +1,0 @@
-# SPDX-FileCopyrightText: 2024 Eli Array Minkoff
-#
-# SPDX-License-Identifier: 0BSD
-
-version = 1
-SPDX-PackageName = "Eli Array Minkoff's mini-utils"
-SPDX-PackageSupplier = "Eli Array Minkoff <eli@planetminkoff.com>"
-SPDX-PackageDownloadLocation = "https://github.com/eliminmax/mini-utils"
-annotations = []
